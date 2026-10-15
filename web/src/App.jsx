@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { VERSION, createNode } from "../../src/phi5.js";
 
 const REPO = "https://github.com/MichaelWave369/Phi5";
