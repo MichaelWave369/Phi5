@@ -1,6 +1,6 @@
-# Phi5 protocol draft · v0.1
+# Phi5 protocol draft · v0.2
 
-**Experimental**, not an industry standard. Only two commands and a same-origin browser demo are implemented.
+**Experimental**, not an industry standard. Only two commands are implemented, with a same-origin browser-tab demo and an opt-in private LAN relay.
 
 ## Manifest
 
@@ -45,7 +45,7 @@ Nodes log a bounded in-memory sequence (128 entries) of discovery, invitations, 
 
 ## Transport boundary
 
-The core only requires a `send(frame)` function and a caller that invokes `receive(frame)`. This makes the app-layer handshake transport-neutral in design. The included implementation uses native BroadcastChannel for **same-origin tabs**, plus in-memory nodes for tests and simulation. It does **not** provide USB, BLE, LAN, mobile OS, or console transport support.
+The core only requires a `send(frame)` function and a caller that invokes `receive(frame)`. This makes the app-layer handshake transport-neutral in design. The included implementation uses native BroadcastChannel for **same-origin tabs**, plus an opt-in plaintext **HTTP POST + Server-Sent Events LAN relay** for cross-computer browser sessions, and in-memory nodes for tests and simulation. The LAN relay never connects to OS peripherals. It does **not** provide USB, BLE, mobile OS, console transport support, authenticated network discovery, or TLS.
 
 ## Exit criteria before any physical-device adapter
 
@@ -54,3 +54,7 @@ The core only requires a `send(frame)` function and a caller that invokes `recei
 - transport-specific isolation, authorization, and safe failure behavior;
 - independent testing of malformed inputs, replay, disconnect, and concurrency;
 - capability-specific safety constraints and user-visible consent.
+
+## v0.2 LAN relay surface
+
+The default server listens on 127.0.0.1 only and disables the LAN endpoints. `npm run lan` opt-in binds the server to 0.0.0.0, generates a random room code, and exposes same-origin `/api/phi5/info`, `/api/phi5/join`, `/api/phi5/events` (SSE), `/api/phi5/send`, and `/api/phi5/leave`. Joins supply a code and a self-declared device ID; the server binds an HttpOnly one-hour cookie to that ID. Relay frames carry only the existing Phi5 envelopes and may be sent only by that client identity. All traffic is **plain HTTP**. This protocol version is strictly **non-sensitive demonstration use on a trusted private LAN**.
