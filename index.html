@@ -12,9 +12,9 @@
 <body>
   <main class="shell">
     <header class="hero">
-      <div class="eyebrow">Φ5 / PHI FIVE · v0.1 LAB</div>
+      <div class="eyebrow">Φ5 / PHI FIVE · v0.2 LAN LAB</div>
       <h1>Give your devices <em>a high five.</em></h1>
-      <p>A common language for introductions, capabilities, and consent. This working prototype talks between tabs on the <strong>same browser origin</strong>, not arbitrary physical hardware.</p>
+      <p>A common language for introductions, capabilities, and consent. The first prototype talked between browser tabs. This update adds an opt-in <strong>trusted-LAN relay</strong> so browser sessions on two computers can exchange demo messages.</p>
       <div class="five" aria-label="Five Phi5 stages">
         <span>01 Find</span><span>02 Identify</span><span>03 Invite</span>
         <span>04 Authorize</span><span>05 Exchange</span>
@@ -22,7 +22,7 @@
     </header>
 
     <section class="notice" role="note">
-      <strong>Lab boundary:</strong> Browser tab identity is self-declared; BroadcastChannel provides no cryptographic authentication. Never send secrets or grant real device control through this demo. OS drivers and hardware permissions are unchanged.
+      <strong>Lab boundary:</strong> Browser identity is self-declared. LAN mode uses unencrypted HTTP, not verified peer authentication. Use only on a trusted private network with harmless demo messages. Never expose the server to the public internet, send secrets, or control real hardware. OS drivers and permissions are unchanged.
     </section>
 
     <div class="columns">
@@ -36,11 +36,22 @@
           <button id="new-tab" type="button" class="secondary">Open peer tab ↗</button>
         </div>
         <p id="transport" class="muted" aria-live="polite"></p>
+        <div id="lan-panel" class="lan-panel" hidden>
+          <h3>Trusted-LAN handshake</h3>
+          <p class="muted">Start the host with <code>npm run lan</code>. On each browser, enter the private 32-character code printed in the host terminal, then separately approve the peer invitation.</p>
+          <label for="room-code">LAN room code</label>
+          <input id="room-code" type="password" autocomplete="off" spellcheck="false" maxlength="32" placeholder="32 hexadecimal characters">
+          <div class="controls">
+            <button id="lan-join" type="button">Join LAN room</button>
+            <button id="lan-leave" type="button" class="secondary" hidden>Leave LAN room</button>
+          </div>
+          <p class="muted">Local HTTP offers no confidentiality. The room code is not a substitute for TLS or authenticated device identities.</p>
+        </div>
       </section>
 
       <section class="panel">
         <h2>Nearby peers <span id="peer-count" class="count">0</span></h2>
-        <p class="muted">Peer discovery only works across tabs opened on the same site, browser profile, and origin.</p>
+        <p class="muted">Peers appear from browser tabs, or from computers connected to the same deliberately enabled LAN relay room.</p>
         <div id="peers" class="stack"><p class="empty">Open a second tab, then find peers.</p></div>
       </section>
 
@@ -74,7 +85,7 @@
     </section>
 
     <footer>
-      <span>Original experimental protocol · MIT</span>
+      <span>Original experimental protocol · MIT · v0.2 research demo</span>
       <a href="https://github.com/MichaelWave369/Phi5" rel="noopener">Phi5 on GitHub ↗</a>
       <span>Handshake, not hardware magic.</span>
     </footer>

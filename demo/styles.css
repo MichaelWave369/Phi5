@@ -42,3 +42,8 @@ textarea,select{width:100%;padding:11px;border:1px solid #455672;color:#e7f3ff;b
 footer{display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap;color:#8195b2;font-size:.85rem;padding:30px 4px}
 a{color:#97eadb}
 @media(max-width:740px){.columns{grid-template-columns:1fr}.shell{padding:18px 13px 40px}.panel{padding:17px}h1{letter-spacing:-.045em}.five{gap:5px}.five span{padding:8px 10px}}
+
+.lan-panel{margin-top:18px;padding-top:15px;border-top:1px solid #31435f}
+.lan-panel h3{font-size:1rem;margin:0 0 8px}
+input[type=password]{width:100%;padding:11px;border:1px solid #455672;color:#e7f3ff;background:#0b1628;border-radius:10px;font:inherit}
+[hidden]{display:none !important}

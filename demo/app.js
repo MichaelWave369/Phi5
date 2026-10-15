@@ -1,7 +1,9 @@
 import { VERSION, createNode } from "../src/phi5.js";
 
 const byId = (id) => document.getElementById(id);
-const deviceId = "browser-" + crypto.randomUUID();
+const hexId = () => Array.from(crypto.getRandomValues(new Uint8Array(16)))
+  .map((b) => b.toString(16).padStart(2, "0")).join("");
+const deviceId = "browser-" + hexId();
 const deviceName = "Phi5 Browser " + deviceId.slice(-4).toUpperCase();
 const manifest = (id, name) => ({
   protocol: VERSION, id, name, capabilities: [
@@ -11,6 +13,9 @@ const manifest = (id, name) => ({
 });
 const channel = typeof BroadcastChannel === "function"
   ? new BroadcastChannel("phi5-browser-lab-v0.1") : null;
+let mode = "tab";
+let lanStream = null;
+let lanAvailable = false;
 
 function info(message) {
   byId("transport").textContent = message;
@@ -93,9 +98,19 @@ function render() {
   }
 }
 
-const node = createNode({
+function makeNode() { return createNode({
   manifest: manifest(deviceId, deviceName),
-  send: (frame) => channel?.postMessage(frame),
+  idFactory: () => "phi5-" + hexId(),
+  send: (frame) => {
+    if (mode === "tab") { channel?.postMessage(frame); return; }
+    if (mode !== "lan") return;
+    fetch("./api/phi5/send", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      credentials: "same-origin", body: JSON.stringify(frame)
+    }).then(async (res) => {
+      if (!res.ok) throw new Error("LAN relay denied frame (" + res.status + ")");
+    }).catch(failure);
+  },
   onEvent: (event) => {
     if (event.type === "command_received") {
       if (event.capability === "display.message") byId("screen").textContent = event.payload.text;
@@ -103,14 +118,16 @@ const node = createNode({
     }
     render();
     // A new tab announces once; existing tabs return a hello so both discover each other.
-    if (event.type === "peer_discovered" && event.fresh && channel) node.announce();
+    if (event.type === "peer_discovered" && event.fresh &&
+      (mode === "lan" || channel)) node.announce();
   }
-});
+}); }
+let node = makeNode();
 
 byId("device-name").textContent = deviceName;
 byId("device-id").textContent = deviceId;
 if (channel) {
-  channel.onmessage = (event) => { node.receive(event.data); };
+  channel.onmessage = (event) => { if (mode === "tab") node.receive(event.data); };
   node.announce();
   info("Same-origin BroadcastChannel ready. Open a second Phi5 tab.");
 } else {
@@ -119,6 +136,67 @@ if (channel) {
 }
 byId("announce").addEventListener("click", () => node.announce());
 byId("new-tab").addEventListener("click", () => window.open(location.href, "_blank", "noopener"));
+
+byId("lan-join").addEventListener("click", async () => {
+  if (!lanAvailable || mode === "lan") return;
+  const code = byId("room-code").value.trim().toLowerCase();
+  if (!/^[a-f0-9]{32}$/.test(code)) {
+    info("Enter the 32-character room code printed by the LAN host.");
+    return;
+  }
+  byId("lan-join").disabled = true;
+  try {
+    const reply = await fetch("./api/phi5/join", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      credentials: "same-origin", body: JSON.stringify({ code, deviceId })
+    });
+    if (!reply.ok) throw new Error("Room entry rejected (" + reply.status + ")");
+    // Changing transports also discards all previous handshakes.
+    mode = "lan";
+    node = makeNode();
+    render();
+    byId("room-code").value = "";
+    lanStream = new EventSource("./api/phi5/events", { withCredentials: true });
+    lanStream.onopen = () => {
+      info("Connected to LAN relay. Finding other joined devices...");
+      node.announce();
+    };
+    lanStream.onmessage = (event) => {
+      try { node.receive(JSON.parse(event.data)); }
+      catch { info("Ignored invalid LAN frame"); }
+    };
+    lanStream.onerror = () => info("LAN stream interrupted; reconnecting or expired. Do not assume delivery.");
+    byId("lan-join").hidden = true;
+    byId("lan-leave").hidden = false;
+    info("Joined LAN room. Waiting for relay stream...");
+  } catch (error) {
+    failure(error);
+    byId("lan-join").disabled = false;
+  }
+});
+byId("lan-leave").addEventListener("click", async () => {
+  if (mode !== "lan") return;
+  lanStream?.close();
+  lanStream = null;
+  try {
+    await fetch("./api/phi5/leave", { method: "POST", credentials: "same-origin" });
+  } catch { /* Network loss also clears this page's in-memory session. */ }
+  mode = "tab";
+  node = makeNode();
+  render();
+  byId("lan-join").hidden = false;
+  byId("lan-join").disabled = false;
+  byId("lan-leave").hidden = true;
+  if (channel) node.announce();
+  info("Left LAN room. Tab-only demo restored.");
+});
+fetch("./api/phi5/info", { cache: "no-store" })
+  .then((res) => res.ok ? res.json() : { enabled: false })
+  .then((data) => {
+    lanAvailable = Boolean(data.enabled);
+    byId("lan-panel").hidden = !lanAvailable;
+  }).catch(() => {});
+
 function sendCommand(capability, payload) {
   try {
     if (!byId("target").value) throw new Error("Select an approved session first");
