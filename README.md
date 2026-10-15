@@ -1,10 +1,12 @@
 # Φ5 | Phi5
 
+**React GitHub Pages dashboard:** [michaelwave369.github.io/Phi5/](https://michaelwave369.github.io/Phi5/) (available once Pages is enabled and the deployment succeeds; see [setup instructions](docs/REACT_PAGES.md)).
+
 **Give your devices a high five.**
 
 Phi5 is an original, MIT-licensed experiment in **capability-based, permission-first device communication**. The long-term idea is simple: let devices explain what they can do, negotiate a shared vocabulary, and require a human-approved session before exchanging commands.
 
-> **Status: v0.2 LAN research demo.** Not a universal driver, kernel component, certified interoperability standard, or secure hardware control product. No physical hardware connectivity is claimed. Transports are same-origin browser tabs via BroadcastChannel, an opt-in plaintext HTTP relay for browsers on a trusted private LAN, and an in-memory simulator.
+> **Status: v0.2 protocol/LAN lab, v0.3 React showcase candidate.** Not a universal driver, kernel component, certified interoperability standard, or secure hardware control product. No physical hardware connectivity is claimed. Transports are same-origin browser tabs via BroadcastChannel, an opt-in plaintext HTTP relay for browsers on a trusted private LAN, and an in-memory simulator.
 
 ## The five stages
 
@@ -32,6 +34,17 @@ Visit **http://127.0.0.1:4175**, then:
 6. Click **Run simulated handshake** for a one-window proof of rejection, delivery, and acknowledgement.
 
 The browser demo can be hosted via GitHub Pages from **main / (root)** once this PR is merged. Pages deployment is not enabled by the protocol code; enable it under the repository's Settings → Pages.
+
+## React GitHub Pages showcase (v0.3)
+
+A separate React + Vite website lives in [web/](web/) and reuses the existing protocol core in [src/phi5.js](src/phi5.js). It adds a responsive visual five-stage dashboard, two-tab discovery and approval UI, a live virtual display, receipts, and a four-step in-memory proof. **No backend or LAN service runs on GitHub Pages.**
+
+```sh
+npm --prefix web install
+npm --prefix web run dev
+```
+
+GitHub Pages deployment is defined in [.github/workflows/pages.yml](.github/workflows/pages.yml), but still requires a successful workflow and GitHub Pages configured with **Source: GitHub Actions**. See [React GitPages instructions](docs/REACT_PAGES.md).
 
 ## Two-computer trusted-LAN lab (v0.2)
 
@@ -90,6 +103,6 @@ Read [the protocol draft](docs/PROTOCOL.md) and [threat model](docs/THREAT_MODEL
 - v0.3: authenticated and encrypted local-network discovery, revocable/short-lived capability grants.
 - Later: opt-in adapters for existing OS interfaces and interoperability trials with PhiStream and PhiPie, if verified.
 
-No third-party source code is incorporated. Phi5's browser demo uses platform APIs and its tests use Node's built-in test runner.
+Phi5's protocol implementation is original. The separate React web UI uses React and Vite as dependencies; the protocol tests use Node's built-in test runner.
 
 **License:** [MIT](LICENSE) · **Repository:** https://github.com/MichaelWave369/Phi5

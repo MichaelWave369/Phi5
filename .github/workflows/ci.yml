@@ -1,4 +1,4 @@
-name: Phi5 protocol tests
+name: Phi5 protocol tests and React build
 on:
   push:
     branches: [main]
@@ -6,12 +6,27 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
+  protocol:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-      - name: Run dependency-free unit tests
+          node-version: "22"
+      - name: Run dependency-free protocol and LAN tests
         run: npm test
+  react-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install web dependencies
+        run: npm --prefix web install --no-audit --no-fund
+      - name: Build React GitHub Pages site
+        run: npm --prefix web run build
+      - name: Validate output
+        run: |
+          test -f web/dist/index.html
+          grep -q '/Phi5/assets/' web/dist/index.html
