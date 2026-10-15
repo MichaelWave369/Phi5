@@ -33,6 +33,7 @@ function readJson(req, maxLength) {
       if (!finished) { finished = true; reject(new Error("Invalid or oversized JSON")); }
     }
     req.on("data", (part) => {
+      if (finished) return; // Never keep buffering after the byte limit is exceeded.
       body += part.toString("utf8");
       if (Buffer.byteLength(body) > maxLength) fail();
     });
