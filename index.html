@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Phi5: Give your devices a high five. An experimental permission-first capability handshake.">
+  <title>Phi5 | Device Handshake Lab</title>
+  <link rel="stylesheet" href="./demo/styles.css">
+  <script type="module" src="./demo/app.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow">Φ5 / PHI FIVE · v0.1 LAB</div>
+      <h1>Give your devices <em>a high five.</em></h1>
+      <p>A common language for introductions, capabilities, and consent. This working prototype talks between tabs on the <strong>same browser origin</strong>, not arbitrary physical hardware.</p>
+      <div class="five" aria-label="Five Phi5 stages">
+        <span>01 Find</span><span>02 Identify</span><span>03 Invite</span>
+        <span>04 Authorize</span><span>05 Exchange</span>
+      </div>
+    </header>
+
+    <section class="notice" role="note">
+      <strong>Lab boundary:</strong> Browser tab identity is self-declared; BroadcastChannel provides no cryptographic authentication. Never send secrets or grant real device control through this demo. OS drivers and hardware permissions are unchanged.
+    </section>
+
+    <div class="columns">
+      <section class="panel">
+        <div class="panel-title"><h2>This device</h2><span class="dot"></span></div>
+        <p id="device-name" class="device-name">Starting...</p>
+        <p id="device-id" class="muted monospace"></p>
+        <p class="muted">Capabilities: <code>display.message</code> and <code>status.ping</code></p>
+        <div class="controls">
+          <button id="announce" type="button">Find peers</button>
+          <button id="new-tab" type="button" class="secondary">Open peer tab ↗</button>
+        </div>
+        <p id="transport" class="muted" aria-live="polite"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Nearby peers <span id="peer-count" class="count">0</span></h2>
+        <p class="muted">Peer discovery only works across tabs opened on the same site, browser profile, and origin.</p>
+        <div id="peers" class="stack"><p class="empty">Open a second tab, then find peers.</p></div>
+      </section>
+
+      <section class="panel">
+        <h2>Invitations &amp; sessions</h2>
+        <div id="sessions" class="stack"><p class="empty">No invitations yet.</p></div>
+      </section>
+
+      <section class="panel">
+        <h2>Exchange a message</h2>
+        <label for="target">Approved session</label>
+        <select id="target"><option value="">No active sessions</option></select>
+        <label for="message">Message (160 characters max)</label>
+        <textarea id="message" maxlength="160" rows="3" placeholder="Bro, check this out..."></textarea>
+        <div class="controls">
+          <button type="button" id="send-message">Send message</button>
+          <button type="button" class="secondary" id="send-ping">Send ping</button>
+        </div>
+        <p id="screen" class="screen" aria-live="polite">Your virtual display is ready.</p>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-title">
+        <h2>Proof &amp; receipts</h2>
+        <button type="button" id="self-test" class="secondary">Run simulated handshake</button>
+      </div>
+      <p class="muted">An in-memory two-device simulation demonstrates that an unapproved command is denied, an approved command is received, and a receipt returns.</p>
+      <div id="proof" aria-live="polite"></div>
+      <ol id="receipts" class="receipts" aria-live="polite"></ol>
+    </section>
+
+    <footer>
+      <span>Original experimental protocol · MIT</span>
+      <a href="https://github.com/MichaelWave369/Phi5" rel="noopener">Phi5 on GitHub ↗</a>
+      <span>Handshake, not hardware magic.</span>
+    </footer>
+  </main>
+</body>
+</html>
