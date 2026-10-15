@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 *.log
+
+# Local React build and dependency artifacts
+web/node_modules/
+web/dist/
